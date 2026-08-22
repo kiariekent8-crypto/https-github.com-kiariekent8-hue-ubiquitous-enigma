@@ -1,0 +1,10 @@
+{
+  "name": "ubiquitous-enigma",
+  "version": "0.1.0",
+  "description": "Ubiquitous Enigma token repo",
+  "scripts": {
+    "install:ci": "npm ci",
+    "compile": "npx hardhat compile",
+    "run-all": "bash scripts/run-all.sh"
+  }
+}
