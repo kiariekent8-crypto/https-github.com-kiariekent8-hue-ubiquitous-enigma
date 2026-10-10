@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IUniswapV2Factory {
@@ -26,10 +25,8 @@ interface IUniswapV2Router02 {
 }
 
 contract UbiquitousEnigma is ERC20, Ownable {
-    using SafeERC20 for IERC20;
-
-    IUniswapV2Router02 public immutable uniswapV2Router;
-    address public immutable uniswapV2Pair;
+    IUniswapV2Router02 public uniswapV2Router;
+    address public uniswapV2Pair;
 
     bool private inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
@@ -99,19 +96,13 @@ contract UbiquitousEnigma is ERC20, Ownable {
     }
 
     function rescueETH(address to) external onlyOwner {
-        require(to != address(0), "zero address");
-
         uint256 balance = address(this).balance;
-        (bool success, ) = payable(to).call{value: balance}("");
-        require(success, "ETH transfer failed");
-
+        payable(to).transfer(balance);
         emit RescueETH(to, balance);
     }
 
     function rescueERC20(address token, address to, uint256 amount) external onlyOwner {
-        require(token != address(0) && to != address(0), "zero address");
-
-        IERC20(token).safeTransfer(to, amount);
+        IERC20(token).transfer(to, amount);
         emit RescueERC20(token, to, amount);
     }
 
@@ -126,13 +117,6 @@ contract UbiquitousEnigma is ERC20, Ownable {
             return;
         }
 
-        if (
-            inSwapAndLiquify &&
-            (from != address(this) || msg.sender != address(uniswapV2Router))
-        ) {
-            revert("Transfer during swap");
-        }
-
         if (!tradingEnabled) {
             // Allow owner transfers before trading is enabled.
             if (from != owner() && to != owner()) {
@@ -141,12 +125,19 @@ contract UbiquitousEnigma is ERC20, Ownable {
         }
 
         uint256 contractTokenBalance = balanceOf(address(this));
-        bool shouldSwap =
+
+        // If threshold reached and it's not already swapping, and this is not a buy (from pair),
+        // perform swapAndLiquify to add liquidity.
+        if (
             contractTokenBalance >= minTokensBeforeSwap &&
             contractTokenBalance > 0 &&
             !inSwapAndLiquify &&
             from != uniswapV2Pair &&
-            swapAndLiquifyEnabled;
+            swapAndLiquifyEnabled
+        ) {
+            // use exactly contractTokenBalance (or a configurable cap)
+            swapAndLiquify(contractTokenBalance);
+        }
 
         bool takeFee = !_isExcludedFromFee[from] && !_isExcludedFromFee[to] && liquidityFee > 0;
 
@@ -157,29 +148,24 @@ contract UbiquitousEnigma is ERC20, Ownable {
         }
 
         super._update(from, to, amount);
-
-        if (shouldSwap) {
-            swapAndLiquify(contractTokenBalance);
-        }
     }
 
-    function swapAndLiquify(
-        uint256 contractTokenBalance
-    ) private lockTheSwap {
+    function swapAndLiquify(uint256 contractTokenBalance) private lockTheSwap {
+        // split the contractTokenBalance into halves
         uint256 half = contractTokenBalance / 2;
         uint256 otherHalf = contractTokenBalance - half;
 
         uint256 initialBalance = address(this).balance;
 
+        // swap half for ETH
         swapTokensForEth(half);
 
         uint256 newBalance = address(this).balance - initialBalance;
 
+        // add liquidity to Uniswap
         if (newBalance > 0 && otherHalf > 0) {
-            (uint256 amountToken, uint256 amountETH) =
-                addLiquidity(otherHalf, newBalance);
-
-            emit SwapAndLiquify(half, amountETH, amountToken);
+            addLiquidity(otherHalf, newBalance);
+            emit SwapAndLiquify(half, newBalance, otherHalf);
         }
     }
 
@@ -201,26 +187,16 @@ contract UbiquitousEnigma is ERC20, Ownable {
         );
     }
 
-    function addLiquidity(
-        uint256 tokenAmount,
-        uint256 ethAmount
-    ) private returns (uint256 amountToken, uint256 amountETH) {
+    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
         _approve(address(this), address(uniswapV2Router), tokenAmount);
-
-        uint256 liquidity;
-        (amountToken, amountETH, liquidity) =
-            uniswapV2Router.addLiquidityETH{value: ethAmount}(
-                address(this),
-                tokenAmount,
-                0,
-                0,
-                owner(),
-                block.timestamp
-            );
-
-        require(
-            amountToken > 0 && amountETH > 0 && liquidity > 0,
-            "Liquidity not added"
+        uniswapV2Router.addLiquidityETH{value: ethAmount}(
+            address(this),
+            tokenAmount,
+            0,
+            0,
+            owner(),
+            block.timestamp
         );
     }
 }
+

@@ -1,0 +1,186 @@
+'npx hardhat clean' running (wd: /home/omerkemal/Desktop/https-github.com-kiariekent8-hue-ubiquitous-enigma)
+'npx hardhat clean --global' running (wd: /home/omerkemal/Desktop/https-github.com-kiariekent8-hue-ubiquitous-enigma)
+'npx hardhat compile --force' running (wd: /home/omerkemal/Desktop/https-github.com-kiariekent8-hue-ubiquitous-enigma)
+INFO:Detectors:
+Detector: reentrancy-benign
+Reentrancy in MockUniswapV2Router.addLiquidityETH(address,uint256,uint256,uint256,address,uint256) (contracts/mocks/MockUniswap.sol#87-116):
+	External calls:
+	- require(bool,string)(IERC20(token).transferFrom(msg.sender,address(this),amountTokenDesired),Mock: token transfer failed) (contracts/mocks/MockUniswap.sol#101-108)
+	State variables written after the call(s):
+	- lastLiquidityEthAmount = msg.value (contracts/mocks/MockUniswap.sol#112)
+	- lastLiquidityTokenAmount = amountTokenDesired (contracts/mocks/MockUniswap.sol#111)
+	- liquidityCalls ++ (contracts/mocks/MockUniswap.sol#110)
+Reentrancy in UbiquitousEnigma.swapAndLiquify(uint256) (contracts/UbiquitousEnigma.sol#166-184):
+	External calls:
+	- swapTokensForEth(half) (contracts/UbiquitousEnigma.sol#174)
+		- uniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(tokenAmount,0,path,address(this),block.timestamp) (contracts/UbiquitousEnigma.sol#195-201)
+	- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+		- (amountToken,amountETH,liquidity) = uniswapV2Router.addLiquidityETH{value: ethAmount}(address(this),tokenAmount,0,0,owner(),block.timestamp) (contracts/UbiquitousEnigma.sol#211-219)
+	External calls sending eth:
+	- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+		- (amountToken,amountETH,liquidity) = uniswapV2Router.addLiquidityETH{value: ethAmount}(address(this),tokenAmount,0,0,owner(),block.timestamp) (contracts/UbiquitousEnigma.sol#211-219)
+	State variables written after the call(s):
+	- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+		- _allowances[owner][spender] = value (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#280)
+Reentrancy in MockUniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256) (contracts/mocks/MockUniswap.sol#118-155):
+	External calls:
+	- require(bool,string)(IERC20(path[0]).transferFrom(msg.sender,address(this),amountIn),Mock: token transfer failed) (contracts/mocks/MockUniswap.sol#129-136)
+	State variables written after the call(s):
+	- lastSwapAmount = amountIn (contracts/mocks/MockUniswap.sol#139)
+	- swapCalls ++ (contracts/mocks/MockUniswap.sol#138)
+Reentrancy in MockUniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256) (contracts/mocks/MockUniswap.sol#118-155):
+	External calls:
+	- require(bool,string)(IERC20(path[0]).transferFrom(msg.sender,address(this),amountIn),Mock: token transfer failed) (contracts/mocks/MockUniswap.sol#129-136)
+	- (reentrantTransferSucceeded,reentrantTransferReturnData) = path[0].call(abi.encodeWithSelector(IERC20.transfer.selector,reentrantRecipient,reentrantAmount)) (contracts/mocks/MockUniswap.sol#142-148)
+	State variables written after the call(s):
+	- (reentrantTransferSucceeded,reentrantTransferReturnData) = path[0].call(abi.encodeWithSelector(IERC20.transfer.selector,reentrantRecipient,reentrantAmount)) (contracts/mocks/MockUniswap.sol#142-148)
+	- (reentrantTransferSucceeded,reentrantTransferReturnData) = path[0].call(abi.encodeWithSelector(IERC20.transfer.selector,reentrantRecipient,reentrantAmount)) (contracts/mocks/MockUniswap.sol#142-148)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+INFO:Detectors:
+Detector: reentrancy-events
+Reentrancy in UbiquitousEnigma.rescueETH(address) (contracts/UbiquitousEnigma.sol#101-109):
+	External calls:
+	- (success,None) = address(to).call{value: balance}() (contracts/UbiquitousEnigma.sol#105)
+	Event emitted after the call(s):
+	- RescueETH(to,balance) (contracts/UbiquitousEnigma.sol#108)
+Reentrancy in UbiquitousEnigma.swapAndLiquify(uint256) (contracts/UbiquitousEnigma.sol#166-184):
+	External calls:
+	- swapTokensForEth(half) (contracts/UbiquitousEnigma.sol#174)
+		- uniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(tokenAmount,0,path,address(this),block.timestamp) (contracts/UbiquitousEnigma.sol#195-201)
+	- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+		- (amountToken,amountETH,liquidity) = uniswapV2Router.addLiquidityETH{value: ethAmount}(address(this),tokenAmount,0,0,owner(),block.timestamp) (contracts/UbiquitousEnigma.sol#211-219)
+	External calls sending eth:
+	- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+		- (amountToken,amountETH,liquidity) = uniswapV2Router.addLiquidityETH{value: ethAmount}(address(this),tokenAmount,0,0,owner(),block.timestamp) (contracts/UbiquitousEnigma.sol#211-219)
+	Event emitted after the call(s):
+	- Approval(owner,spender,value) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#282)
+		- (amountToken,amountETH) = addLiquidity(otherHalf,newBalance) (contracts/UbiquitousEnigma.sol#179-180)
+	- SwapAndLiquify(half,amountETH,amountToken) (contracts/UbiquitousEnigma.sol#182)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4
+INFO:Detectors:
+Detector: timestamp
+UbiquitousEnigma.addLiquidity(uint256,uint256) (contracts/UbiquitousEnigma.sol#204-225) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(amountToken > 0 && amountETH > 0 && liquidity > 0,Liquidity not added) (contracts/UbiquitousEnigma.sol#221-224)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: assembly
+SafeERC20._safeTransfer(IERC20,address,uint256,bool) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#176-200) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#179-199)
+SafeERC20._safeTransferFrom(IERC20,address,address,uint256,bool) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#212-244) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#221-243)
+SafeERC20._safeApprove(IERC20,address,uint256,bool) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#255-279) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#258-278)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage
+INFO:Detectors:
+Detector: pragma
+4 different versions of Solidity are used:
+	- Version constraint ^0.8.20 is used by:
+		-^0.8.20 (node_modules/@openzeppelin/contracts/access/Ownable.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+		-^0.8.20 (contracts/UbiquitousEnigma.sol#2)
+		-^0.8.20 (contracts/mocks/MockUniswap.sol#2)
+	- Version constraint >=0.6.2 is used by:
+		->=0.6.2 (node_modules/@openzeppelin/contracts/interfaces/IERC1363.sol#4)
+		->=0.6.2 (node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol#4)
+	- Version constraint >=0.4.16 is used by:
+		->=0.4.16 (node_modules/@openzeppelin/contracts/interfaces/IERC165.sol#4)
+		->=0.4.16 (node_modules/@openzeppelin/contracts/interfaces/IERC20.sol#4)
+		->=0.4.16 (node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol#4)
+		->=0.4.16 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+	- Version constraint >=0.8.4 is used by:
+		->=0.8.4 (node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
+INFO:Detectors:
+Detector: solc-version
+Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/access/Ownable.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+	- ^0.8.20 (contracts/UbiquitousEnigma.sol#2)
+	- ^0.8.20 (contracts/mocks/MockUniswap.sol#2)
+Version constraint >=0.6.2 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- MissingSideEffectsOnSelectorAccess
+	- AbiReencodingHeadOverflowWithStaticArrayCleanup
+	- DirtyBytesArrayToStorage
+	- NestedCalldataArrayAbiReencodingSizeValidation
+	- ABIDecodeTwoDimensionalArrayMemory
+	- KeccakCaching
+	- EmptyByteArrayCopy
+	- DynamicArrayCleanup
+	- MissingEscapingInFormatting
+	- ArraySliceDynamicallyEncodedBaseType
+	- ImplicitConstructorCallvalueCheck
+	- TupleAssignmentMultiStackSlotComponents
+	- MemoryArrayCreationOverflow.
+It is used by:
+	- >=0.6.2 (node_modules/@openzeppelin/contracts/interfaces/IERC1363.sol#4)
+	- >=0.6.2 (node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol#4)
+Version constraint >=0.4.16 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- DirtyBytesArrayToStorage
+	- ABIDecodeTwoDimensionalArrayMemory
+	- KeccakCaching
+	- EmptyByteArrayCopy
+	- DynamicArrayCleanup
+	- ImplicitConstructorCallvalueCheck
+	- TupleAssignmentMultiStackSlotComponents
+	- MemoryArrayCreationOverflow
+	- privateCanBeOverridden
+	- SignedArrayStorageCopy
+	- ABIEncoderV2StorageArrayWithMultiSlotElement
+	- DynamicConstructorArgumentsClippedABIV2
+	- UninitializedFunctionPointerInConstructor_0.4.x
+	- IncorrectEventSignatureInLibraries_0.4.x
+	- ExpExponentCleanup
+	- NestedArrayFunctionCallDecoder
+	- ZeroFunctionSelector.
+It is used by:
+	- >=0.4.16 (node_modules/@openzeppelin/contracts/interfaces/IERC165.sol#4)
+	- >=0.4.16 (node_modules/@openzeppelin/contracts/interfaces/IERC20.sol#4)
+	- >=0.4.16 (node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol#4)
+	- >=0.4.16 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+Version constraint >=0.8.4 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess
+	- AbiReencodingHeadOverflowWithStaticArrayCleanup
+	- DirtyBytesArrayToStorage
+	- DataLocationChangeInInternalOverride
+	- NestedCalldataArrayAbiReencodingSizeValidation
+	- SignedImmutables.
+It is used by:
+	- >=0.8.4 (node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+INFO:Detectors:
+Detector: low-level-calls
+Low level call in UbiquitousEnigma.rescueETH(address) (contracts/UbiquitousEnigma.sol#101-109):
+	- (success,None) = address(to).call{value: balance}() (contracts/UbiquitousEnigma.sol#105)
+Low level call in MockUniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256) (contracts/mocks/MockUniswap.sol#118-155):
+	- (reentrantTransferSucceeded,reentrantTransferReturnData) = path[0].call(abi.encodeWithSelector(IERC20.transfer.selector,reentrantRecipient,reentrantAmount)) (contracts/mocks/MockUniswap.sol#142-148)
+	- (success,None) = address(to).call{value: ethToReturn}() (contracts/mocks/MockUniswap.sol#153)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+INFO:Detectors:
+Detector: missing-inheritance
+MockUniswapV2Factory (contracts/mocks/MockUniswap.sol#6-16) should inherit from IUniswapV2Factory (contracts/UbiquitousEnigma.sol#9-11)
+MockUniswapV2Router (contracts/mocks/MockUniswap.sol#18-156) should inherit from IUniswapV2Router02 (contracts/UbiquitousEnigma.sol#12-26)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance
+INFO:Detectors:
+Detector: naming-convention
+Function IUniswapV2Router02.WETH() (contracts/UbiquitousEnigma.sol#14) is not in mixedCase
+Parameter UbiquitousEnigma.setSwapAndLiquifyEnabled(bool)._enabled (contracts/UbiquitousEnigma.sol#91) is not in mixedCase
+Function MockUniswapV2Router.WETH() (contracts/mocks/MockUniswap.sol#51-53) is not in mixedCase
+Constant MockUniswapV2Router._weth (contracts/mocks/MockUniswap.sol#20) is not in UPPER_CASE_WITH_UNDERSCORES
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: unindexed-event-address
+Event UbiquitousEnigma.ExcludeFromFee(address,bool) (contracts/UbiquitousEnigma.sol#45) has address parameters but no indexed parameters
+Event UbiquitousEnigma.RescueETH(address,uint256) (contracts/UbiquitousEnigma.sol#49) has address parameters but no indexed parameters
+Event UbiquitousEnigma.RescueERC20(address,address,uint256) (contracts/UbiquitousEnigma.sol#50) has address parameters but no indexed parameters
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-event-address-parameters
+INFO:Slither:. analyzed (17 contracts with 102 detectors), 26 result(s) found

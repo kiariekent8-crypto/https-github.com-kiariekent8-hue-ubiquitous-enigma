@@ -5,6 +5,13 @@
   "scripts": {
     "install:ci": "npm ci",
     "compile": "npx hardhat compile",
-    "run-all": "bash scripts/run-all.sh"
+    "run-all": "bash scripts/run-all.sh",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@openzeppelin/contracts": "^5.6.1",
+    "ethers": "^5.8.0",
+    "hardhat": "^2.29.1"
   }
 }

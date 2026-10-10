@@ -15,7 +15,7 @@ async function main() {
 
   console.log("UbiquitousEnigma deployed to:", token.address);
   console.log("Initial supply minted to:", initialReceiver);
-  console.log("Owner (deployer):", deployer.address);
+  console.log("Owner:", await token.owner());
 }
 
 main().catch((error) => {

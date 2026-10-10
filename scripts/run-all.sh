@@ -56,10 +56,10 @@ if $DO_DEPLOY; then
 
   echo "3) Deploying contract..."
   # run deploy script and capture output to parse deployed address
-  npx hardhat run scripts/deployEUG.js --network "$NETWORK" | tee deploy_output.txt
+  npx hardhat run scripts/deploy.js --network "$NETWORK" | tee deploy_output.txt
 
   # Try to parse deployed address line "EUG deployed to: 0x..."
-  DEPLOYED_ADDR=$(grep -Eo "EUG deployed to: 0x[0-9a-fA-F]{40}" deploy_output.txt | awk '{print $4}' | tail -n1 || true)
+  DEPLOYED_ADDR=$(grep -Eo "UbiquitousEnigma deployed to: 0x[0-9a-fA-F]{40}" deploy_output.txt | awk '{print $3}' | tail -n1 || true)
   if [[ -n "$DEPLOYED_ADDR" ]]; then
     echo "Parsed deployed address: $DEPLOYED_ADDR"
     echo "$DEPLOYED_ADDR" > "$DEPLOYED_ADDRESS_FILE"
@@ -121,7 +121,7 @@ if $DO_ENABLE; then
   fi
 
   echo "5) Enabling trading for token $TOKEN_ADDRESS"
-  node -e "(async () => { const hre = require('hardhat'); const ethers = hre.ethers; const signer = (await ethers.getSigners())[0]; const tokenAddress = process.env.TOKEN_ADDRESS || '$TOKEN_ADDRESS'; const token = await hre.ethers.getContractAt('EUG', tokenAddress, signer); console.log('Caller (should be owner):', signer.address); const tx = await token.enableTrading(); const receipt = await tx.wait(); console.log('enableTrading tx:', receipt.transactionHash); })().catch(e => { console.error(e); process.exit(1); });" --network "$NETWORK"
+  node -e "(async () => { const hre = require('hardhat'); const ethers = hre.ethers; const signer = (await ethers.getSigners())[0]; const tokenAddress = process.env.TOKEN_ADDRESS || '$TOKEN_ADDRESS'; const token = await hre.ethers.getContractAt('UbiquitousEnigma', tokenAddress, signer); console.log('Caller (should be owner):', signer.address); const tx = await token.enableTrading(); const receipt = await tx.wait(); console.log('enableTrading tx:', receipt.transactionHash); })().catch(e => { console.error(e); process.exit(1); });" --network "$NETWORK"
 fi
 
 echo "All requested tasks completed."

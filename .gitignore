@@ -21,3 +21,14 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+# Node.js
+node_modules/
+
+# Hardhat build output
+artifacts/
+cache/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
